@@ -1,0 +1,128 @@
+!!! 5
+-# paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/
+<!--[if lt IE 7]> <html lang="en" class="no-js ie6"> <![endif]-->
+<!--[if IE 7]>    <html lang="en" class="no-js ie7"> <![endif]-->
+<!--[if IE 8]>    <html lang="en" class="no-js ie8"> <![endif]-->
+<!--[if gt IE 8]><!-->
+%html.no-js{ :lang => "en" }
+  <!--<![endif]-->
+  %head
+    %meta{ :charset => "utf-8" }/
+    
+    -# Always force latest IE rendering engine (even in intranet) & Chrome Frame
+    -# Remove this if you use the .htaccess
+    %meta{ "http-equiv" => "X-UA-Compatible", :content => "IE=edge,chrome=1" }/
+    
+    %title
+    %meta{ :name => "description", :content => "" }/
+    %meta{ :name => "author", :content => "" }/
+    
+    -# Mobile viewport optimized: j.mp/bplateviewport
+    %meta{ :name => "viewport", :content => "width=device-width, initial-scale=1.0" }/
+    
+    -# Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons
+    
+    -# CSS: implied media="all"
+    %link{ :href => "stylesheets/style.css?v=1", :media => "all", :rel => "stylesheet" }/
+
+    %link{ :href => "stylesheets/github.css", :media => "all", :rel => "stylesheet" }/
+    
+    -# All JavaScript at the bottom, except for Modernizr and Respond.
+    -# Modernizr enables HTML5 elements & feature detects; Respond is a polyfill for min/max-width CSS3 Media Queries
+    %script{ :src => "javascripts/modernizr.min.js" }
+    %script{ :src => "javascripts/respond.min.js" }
+    %script{ :src => "javascripts/highlight.pack.js"}
+    :javascript
+      hljs.tabReplace = '    ';
+      hljs.initHighlightingOnLoad();
+    
+  %body
+    %a{ :name => "top" }
+    #container
+      #page-logo
+        %img{ :src => 'images/logo.jpg' }
+      #separator
+      #page-title
+        %h1 Интеграция с Яндекс.Страховки
+      %nav#page-crumbs 
+        %span{ :style => "font-weight: bold" } Вы здесь: 
+        %a{ :href => "index.html" } Содержание
+        %span{ :style => "font-weight: bold" } >
+        %a{ :href => "description.html" } Роль "Умный Полис" в Яндекс.Страховки
+      %section#page-main{ :role => 'main' }
+        :markdown
+          Роль "Умный Полис" в Яндекс.Страховки
+          =====================================
+
+          <a name="1"></a>
+          Функции предоставляемые "Умный Полис" для Яндекс.Страховки
+          --------------------------------------------------------------
+
+          Наш калькулятор позволяет сервису Яндекс.Страховки рассчитывать стоимость страховых полисов КАСКО для различных страховык компаний и брокеров. 
+
+          Схемы рассчета стоимости страховых полисов основаны на тех же алгоритмах, которые работают и для нащих клиентов, таким образом гарантирует максимальную точность рассчета, так же как, если бы стоимость рассчитывалась самим страховым брокером, а также использует новейшие схемы рассчета, по которым работают страховые компании и страховые брокеры.
+
+          <a name="2"></a>
+          Преимущества для наших клиентов
+          -------------------------------
+
+          Все расчеты, которые производятся калькулятором для Яндекс.Страховки, сохраняются и доступны в дальнейшем для клиентов. Это позволяет получить доступ к параметрам и результатам рассчета, например для оформления заявки для конечного пользователя.
+
+          Кроме того, "Умный Полис" следит за перенаправлением пользователя на сайт выбранной страховой компании или страхового брокера, с передачей всех данных по расчету.
+
+          <a name="3"></a>
+          Обобщенная схема работы интеграции Яндекс.Страховки, "Умный Полис" и сайта нашего клиента
+          -----------------------------------------------------------------------------------------
+
+          Представим конечного пользователя (это абстрактный автомобилист, которому требуется оформить страховку КАСКО, и он обратился за помощью в сервис Яндекс.Страховки). В дальнейшем будем его называть просто КП.
+
+          * КП заходит на Яндекс.Страховки, вводит данные об автомобиле, водителях, и другие дополнительные данные по условиям страхования;
+          * Яндекс.Страховки передает введенные КП параметры калькулятору "Умный Полис";
+          * Калькулятор "Умный Полис" проводит расчет для своих клиентов, и возвразает результаты расчета сервису Яндекс.Страховки, вместе с URL для конечного перехода на регистрацию заявок (в дальнейшем адрес приземления);
+          * Яндекс.Страховки выводит страницу результатов поиска, где будут указаны страховые компании, страховые брокеры и стоимость страховки для конкретной страховой компании или брокера;
+          * КП выбирает более подходящую ему компанию, у которой он хочет оформить страховой полис, и нажимает кнопку "Оформить";
+          * Яндекс.Страховки переводит пользователя на "Умный Полис", который формирует URL для конкретной компании и расчета, и сразу же переводит пользователя на конечный адрес приземления;
+          * Пользователь попав на адрес приземления (страница оформления страховки конечной страховой компании или брокера) получает страницу для оформления заявки.
+
+          На последнем шаге, данные переданные от "Умный Полис" сайту нашего клиента позволяют используя API "Умный полис" получить данные как об условиях страхования, которые ввел КП на Яндекс.Страховки, так и результаты расчета и страховую компанию, которую выбрал КП. Более подробно это будет описано далее.
+      %nav#page-menu
+        .part-link
+          %p.header Предыдущий раздел
+          %p 
+            %a{ :href => "description.html" } Описание Яндекс.Страховки
+        .part-link
+          %p.header Следующий раздел
+          %p 
+            %a{ :href => "integration.html" } Интеграция клиентских сайтов
+        .part-link
+          %p.header Содержание раздела
+          %ul
+            %li
+              %a{ :href => "calculator.html#1" } Функции предоставляемые "Умный Полис" для Яндекс.Страховки
+            %li
+              %a{ :href => "calculator.html#2" } Преимущества для наших клиентов
+            %li
+              %a{ :href => "calculator.html#3" } Обобщенная схема работы интеграции Яндекс.Страховки, "Умный Полис" и сайта нашего клиента
+      .clear
+      %footer#page-footer
+        %p{ :style => "text-align: center" } Copyright (c) 2011, Технологии Страхования
+      #top-link-container
+        %a.top-link{ :href => "#top" } Наверх &uarr;
+      
+    -# 
+      Javascript at the bottom for fast page loading
+      Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if necessary
+    %script{ :src => "//ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.js" }
+    :javascript
+      window.jQuery || document.write("<script src='js/jquery.min.js'>\x3C/script>")
+    
+    %script{ :src => "js/plugins.js?v=1" }
+    %script{ :src => "js/script.js?v=1" }
+    
+    -#  asynchronous google analytics: mathiasbynens.be/notes/async-analytics-snippet
+    -#  change the UA-XXXXX-X to be your site's ID
+    :javascript
+      var _gaq=[["_setAccount","UA-XXXXX-X"],["_trackPageview"],["_trackPageLoadTime"]];
+      (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
+      g.src=("https:"==location.protocol?"//ssl":"//www")+".google-analytics.com/ga.js";
+      s.parentNode.insertBefore(g,s)}(document,"script"));
