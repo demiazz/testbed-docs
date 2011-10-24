@@ -1,6 +1,7 @@
 #!/bin/sh
 
 mkdir html
+compass compile
 haml index.haml html/index.html
 haml description.haml html/description.html
 haml calculator.haml html/calculator.html
