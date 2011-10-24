@@ -1,0 +1,263 @@
+@import "compass/css3";
+
+//-----------------------------------------------
+// The following html5-boilerplate styles should
+// probably be customized for each site
+//-----------------------------------------------
+
+body, select, input, textarea {
+  color: $font-color;
+  // Set your base font here, to apply evenly
+  // font-family: Georgia, serif;
+}
+
+//Headers (h1, h2, etc) have no default font-size or margin; define those yourself
+h1, h2, h3, h4, h5, h6 {
+  // Bold might not be the best choice if you are
+  // embedding a @font-face that's already bold
+  font-weight: bold;
+}
+
+a, a:active, a:visited { color: $link-color; }
+a:hover { color: $link-hover-color; }
+
+strong, th {
+  font-weight: bold;
+}
+
+small {
+  // Use font-size mixin to convert to percentage for YUI
+  // http://developer.yahoo.com/yui/3/cssfonts/#fontsize
+  @include font-size(13px);  // approx 85% when base-font-size eq 13px
+}
+
+// Add the 'required' attribute on your
+// inputs if you want to use these
+input:valid, textarea:valid {}
+input:invalid, textarea:invalid {
+  @include border-radius(1px);
+  @include single-box-shadow(red, 0, 0, 5px, 0);
+}
+.no-boxshadow input:invalid,
+.no-boxshadow textarea:invalid { background-color: #f0dddd; }
+
+
+//-----------------------------------
+// Main Style
+//-----------------------------------
+
+body {
+  background: url(../images/brushed_alu.png) repeat;
+  min-width: 960px;
+}
+
+p, ul {
+  margin-bottom: 0.5em;
+}
+
+.center {
+  text-align: center;
+}
+
+code {
+  font-size: 16px;
+  font-family: "Ubuntu Mono", monospace, sans-serif;
+  display: inline-block; 
+  padding: 0.1em 0.4em;
+  color: #270E3D;
+  background: #D6D0DB;
+  @include border-radius(3px);
+}
+
+pre {
+  font-size: 16px;
+  font-family: "Ubuntu Mono", monospace, sans-serif;
+  display: block; padding: 0.5em;
+  color: #270E3D;
+  background: #f8f8ff;
+  border: 1px solid #876E9D;
+  @include border-radius(5px);
+  margin-bottom: 0.5em;
+
+  code {
+    display: block;
+    background: white;
+  }
+}
+
+.clear {
+  clear: both;
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  width: 0;
+  height: 0;
+}
+
+#container {
+  width: 960px;
+  margin: 10px auto;
+  background: white;
+  @include border-radius(10px);
+  border: 1px solid #eee;
+  @include box-shadow(0px 0px 3px 1px #999);
+}
+
+.clear {
+  clear: both;
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  width: 0;
+  height: 0;
+}
+
+#page-logo,
+#page-title {
+  display: inline;
+  float: left;
+  margin: 0px;
+  height: 80px;
+  padding: 10px;
+}
+
+#separator {
+  display: inline;
+  float: left;
+  margin: 10px;
+  height: 80px;
+  width: 1px;
+  background: #ddd;
+}
+
+#page-logo {
+  width: 270px;
+  text-align: center;
+}
+
+#page-title {
+  width: 628px;
+  text-align: center;
+
+  h1 {
+    padding: 20px 0px;
+    font-size: 2em;
+    color: #270E3D;
+    @include text-shadow(#876E9D, 1px, 1px, 2px);
+  }
+}
+
+#page-crumbs,
+#page-main,
+#page-menu {
+  display: inline;
+  float: left;
+}
+
+#page-crumbs {
+  width: 950px;
+  padding: 5px;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+
+#page-main {
+  width: 620px;
+  padding: 20px;
+  background: white;
+  @include border-bottom-left-radius(10px);
+
+  @for $i from 1 through 6 {
+    h#{$i} {
+      font-size: #{2.2 - (0.3 * $i)}em;
+      margin-bottom: 10px;
+      color: #270E3D;
+      @include text-shadow(#876E9D, 1px, 1px, 2px);
+    }
+  }
+
+  img {
+    background: #D6D0DB;
+    padding: 20px;
+    max-width: 540px;
+    @include border-radius(5px);
+  }
+
+}
+
+#page-menu {
+  width: 280px;
+  padding: 10px;
+  @include border-bottom-right-radius(10px);
+
+  .part-link {
+
+    background: #D6D0DB;
+    @include border-radius(5px);
+    padding: 10px;
+    margin-bottom: 10px;
+    @include box-shadow(0px 0px 3px 1px #999);
+
+    .header {
+      color: #270E3D;
+      font-weight: bold;
+      @include text-shadow(#876E9D, 1px, 1px, 2px);
+      padding-bottom: 5px;
+      border-bottom: 2px solid #270E3D;
+    }
+
+    a {
+      color: #472E5D;
+    }
+
+    ul {
+      display: inline-block;
+      margin-left: 20px;
+      margin-top: 5px;
+    }
+
+    ul li {
+      list-style: disc;
+      margin-bottom: 5px;
+    }
+
+  }
+
+}
+
+#page-footer {
+  
+  p {
+    text-align: center;
+    margin: 20px;
+    color: #D6D0DB;
+  }
+
+}
+
+#top-link-container {
+  width: 100px;
+  float: left;
+  text-align: right;
+  margin-left: 760px;
+
+  a.top-link {
+    display: inline-block;
+    padding: 10px 20px;
+    @include border-top-radius(5px);
+    background: #D6D0DB;
+    color: #270E3D;
+    bottom: 0px;
+    text-decoration: none;
+    position: fixed;
+    border: 1px solid #270E3D;
+    border-bottom: 0px;
+    @include box-shadow(0px 0px 3px 1px #270E3D);
+
+    &:hover,
+    &:focus {
+      background: #B6B0BB;
+    }
+  }
+
+}

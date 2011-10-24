@@ -1,0 +1,357 @@
+!!! 5
+-# paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/
+<!--[if lt IE 7]> <html lang="en" class="no-js ie6"> <![endif]-->
+<!--[if IE 7]>    <html lang="en" class="no-js ie7"> <![endif]-->
+<!--[if IE 8]>    <html lang="en" class="no-js ie8"> <![endif]-->
+<!--[if gt IE 8]><!-->
+%html.no-js{ :lang => "en" }
+  <!--<![endif]-->
+  %head
+    %meta{ :charset => "utf-8" }/
+    
+    -# Always force latest IE rendering engine (even in intranet) & Chrome Frame
+    -# Remove this if you use the .htaccess
+    %meta{ "http-equiv" => "X-UA-Compatible", :content => "IE=edge,chrome=1" }/
+    
+    %title
+    %meta{ :name => "description", :content => "" }/
+    %meta{ :name => "author", :content => "" }/
+    
+    -# Mobile viewport optimized: j.mp/bplateviewport
+    %meta{ :name => "viewport", :content => "width=device-width, initial-scale=1.0" }/
+    
+    -# Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons
+    
+    -# CSS: implied media="all"
+    %link{ :href => "stylesheets/style.css?v=1", :media => "all", :rel => "stylesheet" }/
+
+    %link{ :href => "stylesheets/github.css", :media => "all", :rel => "stylesheet" }/
+    
+    -# All JavaScript at the bottom, except for Modernizr and Respond.
+    -# Modernizr enables HTML5 elements & feature detects; Respond is a polyfill for min/max-width CSS3 Media Queries
+    %script{ :src => "javascripts/modernizr.min.js" }
+    %script{ :src => "javascripts/respond.min.js" }
+    %script{ :src => "javascripts/highlight.pack.js"}
+    :javascript
+      hljs.tabReplace = '    ';
+      hljs.initHighlightingOnLoad();
+    
+  %body
+    %a{ :name => "top" }
+    #container
+      #page-logo
+        %img{ :src => 'images/logo.jpg' }
+      #separator
+      #page-title
+        %h1 Интеграция с Яндекс.Страховки
+      %nav#page-crumbs 
+        %span{ :style => "font-weight: bold" } Вы здесь: 
+        %a{ :href => "index.html" } Содержание
+        %span{ :style => "font-weight: bold" } >
+        %a{ :href => "api.html" } API "Умный Полис"
+      %section#page-main{ :role => 'main' }
+        :markdown
+          <a name="1"></a>
+          Основное
+          ========
+
+          Работа с API осущствляется посредством HTTP-запросов на определенные адреса. Часть адресов доступна анонимно, остальные требуют аутентификации. В данном руководстве, а также в ответах сервера неизменная часть адреса (endpoint) опускается. Для отправки запроса вам потребуется сконструировать URL из endpoint (http://casco.cmios.ru/api) и относительного адреса. В ответ на запрос сервер генерирует ответ, содержащий сериализованные данные в одном из следующих форматов: `json`, `xml`, `yaml`. По умолчанию используется формат `json`. Для выбора формата в строке запроса передается параметр `format` с требуемым значением, например,
+
+              http://casco.cmios.ru/api/cars/?format=xml
+
+          Обратите внимание, вышесказанное относится только к ответам сервера. Для указания MIME-типа присылаемых на ервер данных, используйте заголовок `Content-Type: application/json` Для запроса на чтение используется HTTP-метод GET, для запроса на запись &larr; POST.
+
+          <a name="2"></a>
+          Аутентификация
+          ==============
+
+          Для аутентификации запроса используется базовая аутентификация HTTP. Вкратце, сервер будет ожидать заголовок `authorization: Basic base64`, где `base64` это строка `'username:password'`, закодированная в формате base64. При неаутентифицированном запросе сервер вернет заголовки
+            
+              401 Authorization Required
+              WWW-Authenticate: Basic realm="CMIOS API"
+
+          <a name="3"></a>
+          JSONP
+          =====
+
+          Ресурсы, доступные анонимно, поддерживают формат `jsonp`: при указании в строке запроса параметра callback, сервер вернет строку, содержащую имя функции, указанной в параметре `callback`, принимающей сгенерированные данные как аргумент. Например, `http://casco.cmios.ru/api/cars/?callback=updateMarks` вернет
+
+          <pre><code class="javascript">updateMarks([
+            {"url": "/cars/297/", "id": 297, "title": "AUDI"},
+            {"url": "/cars/303/", "id": 303, "title": "BMW"},
+            ...
+          ])
+          </code></pre>
+
+          Этот функционал может использоваться для запроса данных (напр., о марках, моделях, модификациях автомобилей и условиях страхования) с помощью JavaScript. 
+
+          **Важное примечание**: У вас не получится выполнить POST-запрос с использованием JSONp на стороне клиента ввиду природы JSONp. JSONp — это хак, позволяющий обойти политику безопасности браузеров Same Origin Policy (браузеры запрещают посылать XHR-запросы на адреса, находящиеся на домене, отличающемся от домена, с которого загружен документ). Тем не менее, браузеры позволяют загружать скрипты с удаленных хостов. Таким образом, для получения данных с удаленного хоста, можно создать элемент `<script>`, записать в атрибут `src` адрес удаленного документа с параметром `callcack`, настроить сервер таким образом, чтобы он оборачивал возвращаемые данные в вызов функции, имя которой принято в качестве параметра callback. Напимер, по адресу `http://example.com/foo` сервер возвращает данные `{"foo":"bar"}`. Тогда при запросе адреса `http://example.com/foo?callback=justdoit` сервер вернет `justdoit({"foo":"bar"})`. Если к моменту получения этих данных в документе объявлена функция `justdoit`, она выполнится с аргументом `{"foo":"bar"}`.
+
+          <a name="4"></a>
+          Список доступных ресурсов
+          =========================
+
+          <a name="5"></a>
+          Анонимные ресурсы
+          -----------------
+          
+          <a name="6"></a> 
+          ### /cars/ ###
+
+          Список марок автомобилей:
+
+          <pre><code class="javascript">[
+              {"url": "/cars/297/", "id": 297, "title": "AUDI"}, 
+              {"url": "/cars/303/", "id": 303, "title": "BMW"}, 
+              ...
+          ]
+          </code></pre>
+
+          Каждый элемент списка содержит поля `id`, `title`, и `url` — ссылку на подробное описание марки (следующий пункт).
+
+          <a name="7"></a>
+          ### /cars/{mark\_id}/ ###
+
+          Подробная информация о марке:
+
+          <pre><code class="javascript">{
+              "mark": {
+                  "id": "303", 
+                  "title": "BMW"
+              },
+              "models": [
+                  {"url": "/cars/303/680/", "id": 680, "title": "1 SERIES"}, 
+                  ...
+              ] 
+          }
+          </pre></code>
+
+          Название марки, id марки и список моделей марки. Каждый элемент списка содержит поля `id`, `title`, и `url` — ссылку на подробное описание модели (следующий пункт).
+
+          <a name="8"></a>
+          ### /cars/{mark\_id}/{model\_id}/ ###
+
+          Подробная информация о модели:
+
+          <pre><code class="javascript">{
+              "mark": {
+                  "id": "303", 
+                  "title": "BMW"
+              },
+              "model": {
+                  "id": "682", 
+                  "title": "3 SERIES"
+              }, 
+              "modifications": [
+                  { "id": 2434,  "title": "316 (E46)" }, 
+                  ...
+              ] 
+          }
+          </code></pre>
+
+          Название марки, id марки, название модели, id модели, и список модификаций модели. Каждый элемент списка модификаций содержит поля `id` и `title`.
+
+          <a name="9"></a>
+          ### /conditions/ ###
+
+          Доступные условия страхования:
+
+            * `installment_type` - возможные варианты рассрочки;
+            * `insurance_period` - возможные варианты длительности страхования;
+            * `payment_form` - возможные варианты формы выплаты страхового возмещения.
+
+          <a name="10"></a>
+          Ресурсы, требующие аутентификации
+          ---------------------------------
+
+          <a name="11"></a>
+          ### /assurers/ ###
+
+          Список страховых компаний, доступных для рассчета.
+
+          <a name="12"></a>
+          ### /calculations/ ###
+
+          <a name="13"></a>
+          #### Метод GET ####
+
+          Список рассчетов, выполненных пользователем. Каждый элемент списка имеет дату рассчета и url рассчета.
+
+          <pre><code class="javascript">[
+              {"url": "/calculations/122190/", "date": "2010-10-12 12:49:17"}, 
+              {"url": "/calculations/122207/", "date": "2010-10-12 13:13:07"}, 
+              ...
+          ]</code></pre>
+
+          <a name="14"></a>
+          #### Метод POST ####
+
+          Создание нового рассчета. Информация о рассчете передается в теле запроса в одном из поддерживаемых форматов сериализации. Формат сериализации должен быть отражен в заголовках звпроса следующим образом `Content-Type: application/json`. Ниже приведен пример тела запроса в формате json.
+
+          <pre><code class="javascript">{
+              "installment_type": 19, 
+              "car": {
+                  "mileage": 2222, 
+                  "mark": {"id": 291}, 
+                  "cost": 23123123, 
+                  "is_mint": false, 
+                  "year": 2010, 
+                  "modification": {"id": 609}, 
+                  "model": {"id": 608},
+                  "engine_power": 120
+              }, 
+              "drivers": {
+                  "list": [
+                      {"age": "42", "experience": "26", "sex": "M"}
+                  ], 
+                  "is_multidrive": false
+              }, 
+              "payment_form": 105
+          }
+          </code></pre>
+
+          При успешном создании рассчета сервер вернет сериализованный массив, содержащий ссылку на рассчет.
+
+          <pre><code class="javascript">{"calculation_url": "/calculations/100500/"}</code></pre>
+
+          <a name="15"></a>
+          ### /calculations/{calculation_id}/ ###
+
+          Подробная информация о рассчете, включая ссылку на результаты рассчета.
+
+          <pre><code class="javascript">{
+              "car": {
+                  "mark": { "id": 294, "title": "ALFA ROMEO"}, 
+                  "model": {"id": 628, "title": "147"},
+                  "modification": {"id": 2367, "title": "1.6 (1598/120)"}, 
+                  "mileage": null, 
+                  "year": 2010, 
+                  "is_mint": 0,
+                  "engine_power": 120
+              }, 
+              "drivers": {
+                  "min_experience": 0, 
+                  "is_multidrive": 1, 
+                  "list": [
+                      {"gender": M, "age": 26, "has_children": 1, "experience": 2, "is_married": 1}
+                  ], 
+                  "min_age": 18
+              }, 
+              "id": 122190, 
+              "results_url": "/calculations/122190/results/"
+          }
+          </code></pre>
+
+          <a name="16"></a>
+          ### /calculations/{calculation_id}/results/ ###
+
+          <a name="17"></a>
+          #### Метод GET ####
+
+          Вывод всех результатов рассчета.
+
+          <pre><code class="javascript">[
+              {
+                  "assurer": {
+                      "title": "Альфастрахование",
+                      "id": 42
+                  },
+                  "bonus": "41825.6000", 
+                  "rate": "16.7300", 
+                  "version": "2010-03-29"
+              }, 
+              ...
+          ]</code></pre>
+
+          * `assurer` — название страховой компании 
+          * `version` — дата выхода тарифа 
+          * `bonus` — страховая премия 
+          * `rate` — страховой тариф
+
+          Для получения результата рассчета по определенной страховой компании, может быть использован параметр `assurer`, например, `/calculations/100500/results/?assurer=3674`.
+
+          <a name="18"></a>
+          #### Метод POST ####
+
+          Создает результат (обсчитывает рассчет) для заданной страховой компании. Информация о результате передается в теле запроса в одном из поддерживаемых форматов сериализации. Ниже приведен пример тела запроса в формате json:
+
+          <pre><code class="javascript">{
+              "assurer": 100500,
+              "extra": {
+                  31337: 'Россия'
+              }
+          }
+          </code></pre>
+
+          `assurer` — идентификатор страховой компании. Список всех возможных идентификаторов хранится в ресурсе `/assurers/extra` — дополнительные параметры. Возможные ключи и значения уточняются индивидуально.
+      %nav#page-menu
+        .part-link
+          %p.header Предыдущий раздел
+          %p 
+            %a{ :href => "calculator.html" } Роль "Умный Полис" в Яндекс.Страховки
+        .part-link
+          %p.header Содержание раздела
+          %ul
+            %li
+              %a{ :href => "api.html#1" } Основное
+            %li
+              %a{ :href => "api.html#2" } Аутентификация
+            %li
+              %a{ :href => "api.html#3" } JSONP
+            %li
+              %a{ :href => "api.html#4" } Список доступных ресурсов
+              %ul
+                %li
+                  %a{ :href => "api.html#5" } Анонимные ресурсы
+                  %ul
+                    %li
+                      %a{ :href => "api.html#6" } /cars/
+                    %li
+                      %a{ :href => "api.html#7" } /cars/{mark_id}/
+                    %li
+                      %a{ :href => "api.html#8" } /cars/{mark_id}/{model_id}/
+                    %li
+                      %a{ :href => "api.html#9" } /conditions/
+                %li
+                  %a{ :href => "api.html#10" } Ресурсы, требующие аутентификации
+                %li
+                  %a{ :href => "api.html#11" } /assurers/
+                %li
+                  %a{ :href => "api.html#12" } /calculations/
+                  %ul
+                    %li
+                      %a{ :href => "api.html#13" } Метод GET
+                    %li
+                      %a{ :href => "api.html#14" } Метод POST
+                %li
+                  %a{ :href => "api.html#15" } /calculations/{calculation_id}/
+                %li
+                  %a{ :href => "api.html#16" } /calculations/{calculation_id}/results/
+                  %ul
+                    %li
+                      %a{ :href => "api.html#17" } Метод GET
+                    %li
+                      %a{ :href => "api.html#18" } Метод POST
+      .clear
+      %footer#page-footer
+        %p{ :style => "text-align: center" } Copyright (c) 2011, Технологии Страхования
+      #top-link-container
+        %a.top-link{ :href => "#top" } Наверх &uarr;
+      
+    -# 
+      Javascript at the bottom for fast page loading
+      Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if necessary
+    %script{ :src => "//ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.js" }
+    :javascript
+      window.jQuery || document.write("<script src='js/jquery.min.js'>\x3C/script>")
+    
+    %script{ :src => "js/plugins.js?v=1" }
+    %script{ :src => "js/script.js?v=1" }
+    
+    -#  asynchronous google analytics: mathiasbynens.be/notes/async-analytics-snippet
+    -#  change the UA-XXXXX-X to be your site's ID
+    :javascript
+      var _gaq=[["_setAccount","UA-XXXXX-X"],["_trackPageview"],["_trackPageLoadTime"]];
+      (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
+      g.src=("https:"==location.protocol?"//ssl":"//www")+".google-analytics.com/ga.js";
+      s.parentNode.insertBefore(g,s)}(document,"script"));
